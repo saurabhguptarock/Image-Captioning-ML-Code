@@ -1,0 +1,7 @@
+/flickr30k_images/flickr30k_images/
+glove.6B.50d.txt
+encoding_train_features.pkl
+.vscode
+descriptions.txt
+idx_to_word.txt
+word_to_idx.txt
