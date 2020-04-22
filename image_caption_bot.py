@@ -28,13 +28,18 @@ def readTextFile(path: str):
     return captions
 
 
-captions = readTextFile('./flickr30k_images/data.txt')
-captions = captions.split('\n')
+# with open("./flickr30k_images/results.csv", encoding="utf8") as f:
+#     file = f.read()
+#     with open("./flickr30k_images/data.txt", "w") as w:
+#         w.write(file)
+
+captions = readTextFile("./flickr30k_images/data.txt")
+captions = captions.split("\n")
 
 descriptions = {}
 for x in captions:
-    img, comment, data = x.split('|')
-    img_name = img.split('.')[0]
+    img, comment, data = x.split("|")
+    img_name = img.split(".")[0]
     if (descriptions.get(img_name)) is None:
         descriptions[img_name] = []
     descriptions[img_name].append(data)
@@ -44,7 +49,7 @@ def clean_text(sentence: str):
     sentence = sentence.lower()
     sentence = re.sub("[^a-z]+", " ", sentence)
     sentence = sentence.split()
-    sentence = ' '.join(sentence)
+    sentence = " ".join(sentence)
     return sentence
 
 
@@ -52,16 +57,16 @@ for key, caption_list in descriptions.items():
     for i in range(len(caption_list)):
         caption_list[i] = clean_text(caption_list[i])
 
-with open('descriptions.txt', 'w') as f:
+with open("descriptions.txt", "w") as f:
     f.write(str(descriptions))
 
-IMG_PATH = './flickr30k_images/flickr30k_images/'
+IMG_PATH = "./flickr30k_images/flickr30k_images/"
 
 descriptions = None
-with open('descriptions.txt', 'r') as f:
+with open("descriptions.txt", "r") as f:
     descriptions = f.read()
 
-descriptions = json.loads(descriptions.replace("'", "\""))
+descriptions = json.loads(descriptions.replace("'", '"'))
 
 vocab = set()
 for key in descriptions.keys():
@@ -86,10 +91,10 @@ train_descriptions = {}
 for img_id in train:
     train_descriptions[img_id] = []
     for cap in descriptions[img_id]:
-        cap_to_append = "startseq " + cap + ' endseq'
+        cap_to_append = "startseq " + cap + " endseq"
         train_descriptions[img_id].append(cap_to_append)
 
-model = ResNet50(weights='imagenet', input_shape=(224, 224, 3))
+model = ResNet50(weights="imagenet", input_shape=(224, 224, 3))
 model_new = Model(model.input, model.layers[-2].output)
 
 
@@ -110,19 +115,19 @@ def encode_image(img):
 
 encoding_train = {}
 
-for ix, img_id in enumerate(train):
-    img_path = IMG_PATH + img_id + '.jpg'
-    encoding_train[img_id] = encode_image(img_path)
+# for ix, img_id in enumerate(train):
+#     img_path = IMG_PATH + img_id + ".jpg"
+#     encoding_train[img_id] = encode_image(img_path)
 
-    if ix % 100 == 0:
-        print(f'Encoding in Progress Time step {ix}')
+#     if ix % 100 == 0:
+#         print(f"Encoding in Progress Time step {ix}")
 
 
-with open('encoding_train_features.pkl', 'wb') as f:
-    pickle.dump(encoding_train, f)
+# with open("encoding_train_features.pkl", "wb") as f:
+#     pickle.dump(encoding_train, f)
 
-# with open('encoding_train_features.pkl', 'rb') as f:
-#     encoding_train = pickle.load(f)
+with open("encoding_train_features.pkl", "rb") as f:
+    encoding_train = pickle.load(f)
 
 
 word_to_idx = {}
@@ -132,10 +137,10 @@ for i, word in enumerate(total_words):
     word_to_idx[word] = i + 1
     idx_to_word[i + 1] = word
 
-idx_to_word[5137] = 'startseq'
-idx_to_word[5138] = 'endseq'
-word_to_idx['startseq'] = 5137
-word_to_idx['endseq'] = 5138
+idx_to_word[5137] = "startseq"
+idx_to_word[5138] = "endseq"
+word_to_idx["startseq"] = 5137
+word_to_idx["endseq"] = 5138
 vocab_size = len(word_to_idx) + 1
 
 max_len = 0
@@ -143,10 +148,12 @@ for key in train_descriptions.keys():
     for cap in train_descriptions[key]:
         max_len = max(max_len, len(cap.split()))
 
-print(train_descriptions.keys())
+# print(train_descriptions.keys())
 
 
-def data_generator(train_descriptions, encoding_train, word_to_idx, max_len, batch_size):
+def data_generator(
+    train_descriptions, encoding_train, word_to_idx, max_len, batch_size
+):
     x1, x2, y = [], [], []
     n = 0
     while True:
@@ -154,14 +161,14 @@ def data_generator(train_descriptions, encoding_train, word_to_idx, max_len, bat
             n += 1
             photo = encoding_train[key]
             for desc in desc_list:
-                seq = [word_to_idx[word]
-                       for word in desc.split() if word in word_to_idx]
+                seq = [
+                    word_to_idx[word] for word in desc.split() if word in word_to_idx
+                ]
                 for i in range(1, len(seq)):
                     xi = seq[:i]
                     yi = seq[i]
 
-                    xi = pad_sequences([xi], maxlen=max_len,
-                                       value=0, padding='post')[0]
+                    xi = pad_sequences([xi], maxlen=max_len, value=0, padding="post")[0]
                     yi = to_categorical([yi], num_classes=vocab_size)[0]
                     x1.append(photo)
                     x2.append(xi)
@@ -172,13 +179,13 @@ def data_generator(train_descriptions, encoding_train, word_to_idx, max_len, bat
                     n = 0
 
 
-f = open('./glove.6B.50d.txt', encoding='utf8')
+f = open("./glove.6B.50d.txt", encoding="utf8")
 
 embedding_index = {}
 for line in f:
     values = line.split()
     word = values[0]
-    word_embedding = np.array(values[1:], dtype='float')
+    word_embedding = np.array(values[1:], dtype="float")
     embedding_index[word] = word_embedding
 f.close()
 
@@ -198,55 +205,55 @@ embedding_matrix = get_embedding_matrix()
 
 input_img_features = Input(shape=(2048,))
 inp_img1 = Dropout(0.5)(input_img_features)
-inp_img2 = Dense(256, activation='relu')(inp_img1)
+inp_img2 = Dense(256, activation="relu")(inp_img1)
 
 input_captions = Input(shape=(max_len,))
-inp_cap1 = Embedding(input_dim=vocab_size, output_dim=50,
-                     mask_zero=True)(input_captions)
+inp_cap1 = Embedding(input_dim=vocab_size, output_dim=50, mask_zero=True)(
+    input_captions
+)
 inp_cap2 = Dropout(0.5)(inp_cap1)
 inp_cap3 = LSTM(256)(inp_cap2)
 
 decoder1 = add([inp_img2, inp_cap3])
-decoder2 = Dense(256, activation='relu')(decoder1)
-outputs = Dense(vocab_size, activation='softmax')(decoder2)
+decoder2 = Dense(256, activation="relu")(decoder1)
+outputs = Dense(vocab_size, activation="softmax")(decoder2)
 
 model = Model(inputs=[input_img_features, input_captions], outputs=outputs)
 
 model.layers[2].set_weights([embedding_matrix])
 model.layers[2].trainable = False
-model.compile(loss='categorical_crossentropy', optimizer='adam')
+model.compile(loss="categorical_crossentropy", optimizer="adam")
 
 
 epochs = 20
 batch_size = 3
-steps = len(train_descriptions)//batch_size
+steps = len(train_descriptions)  # batch_size
 
 
-def train():
+def train_batch():
     for i in range(epochs):
         generator = data_generator(
-            train_descriptions, encoding_train, word_to_idx, max_len, batch_size)
-        model.fit_generator(generator, epochs=1,
-                            steps_per_epoch=steps, verbose=1)
-        model.save('model_'+str(i+1)+'.h5')
+            train_descriptions, encoding_train, word_to_idx, max_len, batch_size
+        )
+        model.fit_generator(generator, epochs=1, steps_per_epoch=steps, verbose=1)
+        model.save("model_" + str(i + 1) + ".h5")
 
 
-train()
+train_batch()
 
 
 def predict_caption(photo):
-    in_text = 'startseq'
-    for i in range(max_len):
-        sequence = [word_to_idx[w]
-                    for w in in_text.split() if w in word_to_idx]
-        sequence = pad_sequences([sequence], maxlen=max_len, padding='post')
+    in_text = "startseq"
+    for _ in range(max_len):
+        sequence = [word_to_idx[w] for w in in_text.split() if w in word_to_idx]
+        sequence = pad_sequences([sequence], maxlen=max_len, padding="post")
         ypred = model.predict([photo, sequence])
         ypred = ypred.argmax()
         word = idx_to_word[ypred]
-        in_text += (' ' + word)
-        if word == 'endseq':
+        in_text += " " + word
+        if word == "endseq":
             break
 
     final_caption = in_text.split()[1:-1]
-    final_caption = ' '.join(final_caption)
+    final_caption = " ".join(final_caption)
     return final_caption
