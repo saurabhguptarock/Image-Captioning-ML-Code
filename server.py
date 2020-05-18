@@ -75,5 +75,5 @@ tb._SYMBOLIC_SCOPE.value = True
 if selected_image is not None:
     st.image(selected_image, use_column_width=True)
     if st.button("Start Prediction"):
-        out: str = predict(selected_image)
-        st.markdown(f"`{out}`")
+        out = predict(selected_image)
+        st.markdown(f"`{out.capitalize()}`")
