@@ -1,4 +1,4 @@
-import streamlit as st
+import streamlit
 import json
 from keras.models import Model, load_model
 import urllib.request
@@ -45,7 +45,7 @@ def predict_caption(model1, photo):
     return final_caption
 
 
-@st.cache
+@streamlit.cache
 def load_model_disk():
     model = load_model("./model.h5")
     return model
@@ -64,16 +64,20 @@ with open("word_to_idx.txt", "r") as f:
 with open("idx_to_word.txt", "r") as f:
     idx_to_word = eval(f.read())
 
-st.title("Image Caption Bot")
 
-selected_image = st.file_uploader("Upload an image", type=["png", "jpg"])
+streamlit.set_option('deprecation.showfileUploaderEncoding', False)
+streamlit.title("Image Caption Bot")
+
+selected_image = streamlit.file_uploader(
+    "Upload an image", type=["png", "jpg"], encoding="auto"
+)
 
 # To fix error generated due to karas 2.3.1
 tb._SYMBOLIC_SCOPE.value = True
 
 
 if selected_image is not None:
-    st.image(selected_image, use_column_width=True)
-    if st.button("Start Prediction"):
+    streamlit.image(selected_image, use_column_width=True)
+    if streamlit.button("Start Prediction"):
         out = predict(selected_image)
-        st.markdown(f"`{out.capitalize()}`")
+        streamlit.markdown(f"`{out.capitalize()}`")
