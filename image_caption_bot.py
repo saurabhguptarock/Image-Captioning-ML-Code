@@ -150,6 +150,9 @@ for key in train_descriptions.keys():
 
 # print(train_descriptions.keys())
 
+"""Data Generator Code which yields the in accordance with previous 
+generated data without overloading the memory"""
+
 
 def data_generator(
     train_descriptions, encoding_train, word_to_idx, max_len, batch_size
@@ -179,6 +182,7 @@ def data_generator(
                     n = 0
 
 
+"""Converting the word to vector using Glove 6B 50D conversion file"""
 f = open("./glove.6B.50d.txt", encoding="utf8")
 
 embedding_index = {}
@@ -203,10 +207,13 @@ def get_embedding_matrix():
 
 embedding_matrix = get_embedding_matrix()
 
+
+"""1 Model"""
 input_img_features = Input(shape=(2048,))
 inp_img1 = Dropout(0.5)(input_img_features)
 inp_img2 = Dense(256, activation="relu")(inp_img1)
 
+"""2 Model"""
 input_captions = Input(shape=(max_len,))
 inp_cap1 = Embedding(input_dim=vocab_size, output_dim=50, mask_zero=True)(
     input_captions
@@ -214,13 +221,20 @@ inp_cap1 = Embedding(input_dim=vocab_size, output_dim=50, mask_zero=True)(
 inp_cap2 = Dropout(0.5)(inp_cap1)
 inp_cap3 = LSTM(256)(inp_cap2)
 
+
+"""Combining The Two models"""
 decoder1 = add([inp_img2, inp_cap3])
 decoder2 = Dense(256, activation="relu")(decoder1)
 outputs = Dense(vocab_size, activation="softmax")(decoder2)
 
+
+"""New Model"""
 model = Model(inputs=[input_img_features, input_captions], outputs=outputs)
 
+"""Replacing model's Embedding Matrix with ours"""
 model.layers[2].set_weights([embedding_matrix])
+
+"""Setting these weights to be non trainable"""
 model.layers[2].trainable = False
 model.compile(loss="categorical_crossentropy", optimizer="adam")
 
