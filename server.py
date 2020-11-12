@@ -65,7 +65,7 @@ with open("idx_to_word.txt", "r") as f:
     idx_to_word = eval(f.read())
 
 
-streamlit.set_option('deprecation.showfileUploaderEncoding', False)
+streamlit.set_option("deprecation.showfileUploaderEncoding", False)
 streamlit.title("Image Caption Bot")
 
 selected_image = streamlit.file_uploader(

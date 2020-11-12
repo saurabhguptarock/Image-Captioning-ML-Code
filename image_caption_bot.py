@@ -20,6 +20,7 @@ from keras.models import Model, load_model
 from keras.utils import to_categorical
 from keras.layers import Input, Dense, Dropout, LSTM, Embedding
 from keras.layers.merge import add
+import matplotlib.pyplot as plt
 
 
 def readTextFile(path: str):
@@ -33,32 +34,32 @@ def readTextFile(path: str):
 #     with open("./flickr30k_images/data.txt", "w") as w:
 #         w.write(file)
 
-captions = readTextFile("./flickr30k_images/data.txt")
-captions = captions.split("\n")
+# captions = readTextFile("./flickr30k_images/data.txt")
+# captions = captions.split("\n")
 
-descriptions = {}
-for x in captions:
-    img, comment, data = x.split("|")
-    img_name = img.split(".")[0]
-    if (descriptions.get(img_name)) is None:
-        descriptions[img_name] = []
-    descriptions[img_name].append(data)
-
-
-def clean_text(sentence: str):
-    sentence = sentence.lower()
-    sentence = re.sub("[^a-z]+", " ", sentence)
-    sentence = sentence.split()
-    sentence = " ".join(sentence)
-    return sentence
+# descriptions = {}
+# for x in captions:
+#     img, comment, data = x.split("|")
+#     img_name = img.split(".")[0]
+#     if (descriptions.get(img_name)) is None:
+#         descriptions[img_name] = []
+#     descriptions[img_name].append(data)
 
 
-for key, caption_list in descriptions.items():
-    for i in range(len(caption_list)):
-        caption_list[i] = clean_text(caption_list[i])
+# def clean_text(sentence: str):
+#     sentence = sentence.lower()
+#     sentence = re.sub("[^a-z]+", " ", sentence)
+#     sentence = sentence.split()
+#     sentence = " ".join(sentence)
+#     return sentence
 
-with open("descriptions.txt", "w") as f:
-    f.write(str(descriptions))
+
+# for key, caption_list in descriptions.items():
+#     for i in range(len(caption_list)):
+#         caption_list[i] = clean_text(caption_list[i])
+
+# with open("descriptions.txt", "w") as f:
+#     f.write(str(descriptions))
 
 IMG_PATH = "./flickr30k_images/flickr30k_images/"
 
@@ -177,7 +178,7 @@ def data_generator(
                     x2.append(xi)
                     y.append(yi)
                 if n == batch_size:
-                    yield [[np.array(x1), np.array(x2)], np.array(y)]
+                    yield ([np.array(x1), np.array(x2)], np.array(y))
                     x1, x2, y = [], [], []
                     n = 0
 
@@ -236,7 +237,7 @@ model.layers[2].set_weights([embedding_matrix])
 
 """Setting these weights to be non trainable"""
 model.layers[2].trainable = False
-model.compile(loss="categorical_crossentropy", optimizer="adam")
+model.compile(loss="categorical_crossentropy", optimizer="adam", metrics=["accuracy"])
 
 
 epochs = 20
@@ -249,7 +250,14 @@ def train_batch():
         generator = data_generator(
             train_descriptions, encoding_train, word_to_idx, max_len, batch_size
         )
-        model.fit_generator(generator, epochs=1, steps_per_epoch=steps, verbose=1)
+        training = model.fit(generator, epochs=1, steps_per_epoch=steps, verbose=1)
+        plt.plot(training.history["accuracy"])
+        plt.title("Model Accuracy")
+        plt.ylabel("Accuracy")
+        plt.xlabel("Epoch")
+        plt.legend(["train", "val"], loc="upper left")
+        plt.style.use("seaborn")
+        plt.show()
         model.save("model_" + str(i + 1) + ".h5")
 
 
