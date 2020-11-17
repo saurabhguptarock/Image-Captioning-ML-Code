@@ -12,8 +12,7 @@ import string
 from nltk.corpus import stopwords
 from time import time
 import pickle
-from keras.applications.vgg16 import VGG16
-from keras.applications.resnet50 import ResNet50, preprocess_input, decode_predictions
+from keras.applications.vgg16 import VGG16, preprocess_input, decode_predictions
 from keras.preprocessing import image
 from keras.preprocessing.sequence import pad_sequences
 from keras.models import Model, load_model
@@ -23,10 +22,10 @@ from keras.layers.merge import add
 import matplotlib.pyplot as plt
 
 
-def readTextFile(path: str):
-    with open(path) as f:
-        captions = f.read()
-    return captions
+# def readTextFile(path: str):
+#     with open(path) as f:
+#         captions = f.read()
+#     return captions
 
 
 # with open("./flickr30k_images/results.csv", encoding="utf8") as f:
@@ -95,7 +94,7 @@ for img_id in train:
         cap_to_append = "startseq " + cap + " endseq"
         train_descriptions[img_id].append(cap_to_append)
 
-model = ResNet50(weights="imagenet", input_shape=(224, 224, 3))
+model = VGG16(weights="imagenet", input_shape=(224, 224, 3))
 model_new = Model(model.input, model.layers[-2].output)
 
 
