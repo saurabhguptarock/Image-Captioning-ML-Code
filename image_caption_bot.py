@@ -250,12 +250,9 @@ def train_batch():
             train_descriptions, encoding_train, word_to_idx, max_len, batch_size
         )
         training = model.fit(generator, epochs=1, steps_per_epoch=steps, verbose=1)
-        plt.plot(training.history["accuracy"])
-        plt.title("Model Accuracy")
-        plt.ylabel("Accuracy")
+        plt.plot(training.history["loss"])
+        plt.ylabel("Loss")
         plt.xlabel("Epoch")
-        plt.legend(["train", "val"], loc="upper left")
-        plt.style.use("seaborn")
         plt.show()
         model.save("model_" + str(i + 1) + ".h5")
 
