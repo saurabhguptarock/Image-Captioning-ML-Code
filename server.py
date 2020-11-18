@@ -3,7 +3,7 @@ import json
 from keras.models import Model, load_model
 import urllib.request
 import io
-from keras.applications.vgg16 import VGG16, preprocess_input
+from keras.applications.resnet50 import ResNet50, preprocess_input
 import numpy as np
 from keras.preprocessing.sequence import pad_sequences
 from keras.preprocessing import image
@@ -20,7 +20,7 @@ def preprocess_img(img):
 
 
 def encode_image(f):
-    model = VGG16(weights="imagenet", input_shape=(224, 224, 3))
+    model = ResNet50(weights="imagenet", input_shape=(224, 224, 3))
     model_new = Model(model.input, model.layers[-2].output)
     img = preprocess_img(f)
     feature_vector = model_new.predict(img)
