@@ -22,43 +22,43 @@ from keras.layers.merge import add
 import matplotlib.pyplot as plt
 
 
-# def readTextFile(path: str):
-#     with open(path) as f:
-#         captions = f.read()
-#     return captions
+def readTextFile(path: str):
+    with open(path) as f:
+        captions = f.read()
+    return captions
 
 
-# with open("./flickr30k_images/results.csv", encoding="utf8") as f:
-#     file = f.read()
-#     with open("./flickr30k_images/data.txt", "w") as w:
-#         w.write(file)
+with open("./flickr30k_images/results.csv", encoding="utf8") as f:
+    file = f.read()
+    with open("./flickr30k_images/data.txt", "w") as w:
+        w.write(file)
 
-# captions = readTextFile("./flickr30k_images/data.txt")
-# captions = captions.split("\n")
+captions = readTextFile("./flickr30k_images/data.txt")
+captions = captions.split("\n")
 
-# descriptions = {}
-# for x in captions:
-#     img, comment, data = x.split("|")
-#     img_name = img.split(".")[0]
-#     if (descriptions.get(img_name)) is None:
-#         descriptions[img_name] = []
-#     descriptions[img_name].append(data)
-
-
-# def clean_text(sentence: str):
-#     sentence = sentence.lower()
-#     sentence = re.sub("[^a-z]+", " ", sentence)
-#     sentence = sentence.split()
-#     sentence = " ".join(sentence)
-#     return sentence
+descriptions = {}
+for x in captions:
+    img, comment, data = x.split("|")
+    img_name = img.split(".")[0]
+    if (descriptions.get(img_name)) is None:
+        descriptions[img_name] = []
+    descriptions[img_name].append(data)
 
 
-# for key, caption_list in descriptions.items():
-#     for i in range(len(caption_list)):
-#         caption_list[i] = clean_text(caption_list[i])
+def clean_text(sentence: str):
+    sentence = sentence.lower()
+    sentence = re.sub("[^a-z]+", " ", sentence)
+    sentence = sentence.split()
+    sentence = " ".join(sentence)
+    return sentence
 
-# with open("descriptions.txt", "w") as f:
-#     f.write(str(descriptions))
+
+for key, caption_list in descriptions.items():
+    for i in range(len(caption_list)):
+        caption_list[i] = clean_text(caption_list[i])
+
+with open("descriptions.txt", "w") as f:
+    f.write(str(descriptions))
 
 IMG_PATH = "./flickr30k_images/flickr30k_images/"
 
