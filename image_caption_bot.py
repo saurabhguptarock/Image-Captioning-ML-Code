@@ -1,6 +1,7 @@
 import urllib.request
 import io
-from PIL import Image
+
+# from PIL import Image
 import collections
 import json
 import pandas as pd
@@ -9,7 +10,8 @@ import keras
 import re
 import nltk
 import string
-from nltk.corpus import stopwords
+
+# from nltk.corpus import stopwords
 from time import time
 import pickle
 from keras.applications.vgg16 import VGG16, preprocess_input, decode_predictions
@@ -20,7 +22,6 @@ from keras.utils import to_categorical
 from keras.layers import Input, Dense, Dropout, LSTM, Embedding
 from keras.layers.merge import add
 import matplotlib.pyplot as plt
-
 
 # def readTextFile(path: str):
 #     with open(path) as f:
